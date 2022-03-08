@@ -2,49 +2,63 @@ const axios = require('axios');
 const fsPromises = require('fs').promises;
 
 
-// axios.post(this.props.restUrl + "room", room).then( (res) => {                
-//   this.setState({
-//       messageList : [],
-//       new_room_id : res.data.room._id
-//   })
-//   this.mqttClient.subscribeToTopic(this.state.new_room_id, this.handleNewMessage);
-// })
-// .catch((err) => {
-//   console.log(err);
-// });
 
+const default_lat = "44.49";
+const default_long = "11.34";
+const gen_api_uri = (lat=default_lat,lon=default_long)=>{
+  var valid_lat = lat;
+  var valid_lon = lon;
+  if(isNaN(Number(valid_lat))){
+    valid_lat=default_lat;
+  }
+  if(isNaN(Number(valid_lon))){
+    valid_lon=default_lat;
+  }
+  return "http://www.7timer.info/bin/api.pl?lon="+valid_lon+"&lat="+valid_lat+"&product=astro&output=xml";
+}
 
 class Worker{
+
       constructor(){
             this.work=this.work.bind(this);
+            this.err=this.err.bind(this);
       }
 
-      work(cb,cbErr){
+      err(e,cbErr){
+        console.log("ERROR: "+e);
+        if(cbErr!==null && cbErr!==undefined){
+          cbErr(e);
+        }else{
+          process.exit(1);
+        }
+      }
+
+      work(lat,lon,cb,cbErr){
           (async () => {
-            
-            const iexecOut = process.env.IEXEC_OUT;
+            console.log("lat: "+lat);
+            console.log("lon: "+lon);
             try {
+              const iexecOut = process.env.IEXEC_OUT;
               // Do whatever you want (let's write hello world here)
-              const message = process.argv.length > 2 ? process.argv[2] : 'World';
-          
-              // Append some results in /iexec_out/
-              await fsPromises.writeFile(`${iexecOut}/result.txt`, message);
-              // Declare everything is computed
-              const computedJsonObj = {
-                'deterministic-output-path': `${iexecOut}/result.txt`,
-              };
-              await fsPromises.writeFile(
-                `${iexecOut}/computed.json`,
-                JSON.stringify(computedJsonObj),
-              );
-              cb(message);
-            } catch (e) {
-              console.log("ERROR: "+e);
-              if(cbErr!==null && cbErr!==undefined){
-                cbErr(e);
+              const url = gen_api_uri(lat,lon);
+              const message = await axios.get(url);
+              if(message.status===200){
+                // Append some results in /iexec_out/
+                await fsPromises.writeFile(`${iexecOut}/result.txt`, "CIAO");
+                // Declare everything is computed
+                const computedJsonObj = {
+                  'deterministic-output-path': `${iexecOut}/result.txt`,
+                };
+                await fsPromises.writeFile(
+                  `${iexecOut}/computed.json`,
+                  JSON.stringify(computedJsonObj),
+                );
+                cb(computedJsonObj);
               }else{
-                process.exit(1);
+                this.err("Get status code "+ message.status+ " from api.",cbErr);
               }
+            } catch (e) {
+                this.err(e,cbErr);
             }
           })();
       }
