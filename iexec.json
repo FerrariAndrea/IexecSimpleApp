@@ -12,7 +12,6 @@
       "iexec_args": ""
     },
     "tag": "0x0000000000000000000000000000000000000000000000000000000000000000",
-    "trust": "0",
     "callback": "0x0000000000000000000000000000000000000000"
   },
   "app": {
@@ -20,6 +19,6 @@
     "name": "iexec-simple-app",
     "type": "DOCKER",
     "multiaddr": "docker.io/thespeedghost/iexec-simple-app:1.0.0",
-    "checksum": "0xf3b3f5c10f30a8e12a34702d64fa59dc5392ab569d5ee25017221382b941a7cc"
+    "checksum": "0x5110751dc9e53051a895f45114509c22bddbdf02c2fca470a85e2cfd63dd4981"
   }
 }
