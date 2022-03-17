@@ -2,7 +2,8 @@ const axios = require('axios');
 const { Http2ServerRequest } = require('http2');
 const fsPromises = require('fs').promises;
 // const web3 = require('web3');
-const coder = require('web3-eth-abi')
+// const coder = require('web3-eth-abi')
+const ethers  = require('ethers');
 
 
 
@@ -47,25 +48,29 @@ class Worker{
               const message = await axios.get(url);
               var msgRandom = 10; 
               if(flag==="D" || flag==="C"){
-                msgRandom=Math.trunc(Math.random()*(10**10));
+                msgRandom=Math.trunc(Math.random()*(1000000));
               }
               //var callback_data =coder.encodeParameter(['uint256', 'string'], [msgRandom,'CIAO']).hex()
-              var callback_data =coder.encodeParameter('uint256', msgRandom);
+              //var callback_data =coder.encodeParameter('uint256', msgRandom);
+              // packed data always bytes32 (bytes32 vs uint256?) WARNING is that the problem?
+  
+              var callback_data = ethers.utils.defaultAbiCoder.encode(["uint"], [msgRandom]);
               console.log('result: '+msgRandom);
               console.log('result.encode_abi:'+callback_data);
 
             
               if(message.status===200){
                 // Append some results in /iexec_out/
-                await fsPromises.writeFile(`${iexecOut}/result.txt`,callback_data);
+               // await fsPromises.writeFile(`${iexecOut}/result.txt`,callback_data);
+               
                 // Declare everything is computed
                 // const computedJsonObj = {
                 //   'deterministic-output-path': `${iexecOut}/result.txt`
                 //   // 'callback-data': "0x"+md5(`CIAO`)
                 // };
                 const computedJsonObj = {
-                  'deterministic-output-path': `${iexecOut}/result.txt`,
-                  //'callback-data': callback_data
+                  //'deterministic-output-path': `${iexecOut}/result.txt`,
+                  'callback-data': callback_data
                 };
                 if(flag==="B" || flag==="C"){
                   computedJsonObj.r="random"+msgRandom;

@@ -19,6 +19,6 @@
     "name": "iexec-simple-app",
     "type": "DOCKER",
     "multiaddr": "docker.io/thespeedghost/iexec-simple-app:1.0.0",
-    "checksum": "0x5110751dc9e53051a895f45114509c22bddbdf02c2fca470a85e2cfd63dd4981"
+    "checksum": "0xd496749250862b402a4e1eeb56956b7c0c510ab6d7da28712fb2e585e45e6f03"
   }
 }
