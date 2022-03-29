@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { Http2ServerRequest } = require('http2');
+// const { Http2ServerRequest } = require('http2');
 const fsPromises = require('fs').promises;
 // const web3 = require('web3');
 // const coder = require('web3-eth-abi')
@@ -9,6 +9,7 @@ const ethers  = require('ethers');
 
 const default_lat = "44.49";
 const default_long = "11.34";
+// https://api.ipify.org/?format=json
 const gen_api_uri = (lat=default_lat,lon=default_long)=>{
   var valid_lat = lat;
   var valid_lon = lon;
@@ -39,15 +40,15 @@ class Worker{
 
       work(lat,lon,flag="A",cb,cbErr){
           (async () => {
-            console.log("lat: "+lat);
-            console.log("lon: "+lon);
+            // console.log("lat: "+lat);
+            // console.log("lon: "+lon);
             try {
               const iexecOut = process.env.IEXEC_OUT;
               // Do whatever you want (let's write hello world here)
               const url = gen_api_uri(lat,lon);
               const message = await axios.get(url);
               var msgRandom = 10; 
-              if(flag==="D" || flag==="C"){
+              if(flag==="R"){
                 msgRandom=Math.trunc(Math.random()*(1000000));
               }
               //var callback_data =coder.encodeParameter(['uint256', 'string'], [msgRandom,'CIAO']).hex()
@@ -55,8 +56,8 @@ class Worker{
               // packed data always bytes32 (bytes32 vs uint256?) WARNING is that the problem?
   
               var callback_data = ethers.utils.defaultAbiCoder.encode(["uint"], [msgRandom]);
-              console.log('result: '+msgRandom);
-              console.log('result.encode_abi:'+callback_data);
+              // console.log('result: '+msgRandom);
+              // console.log('result.encode_abi:'+callback_data);
 
             
               if(message.status===200){
@@ -72,9 +73,9 @@ class Worker{
                   //'deterministic-output-path': `${iexecOut}/result.txt`,
                   'callback-data': callback_data
                 };
-                if(flag==="B" || flag==="C"){
-                  computedJsonObj.r="random"+msgRandom;
-                }
+                // if(flag==="B" || flag==="C"){
+                //   computedJsonObj.r="random"+msgRandom;
+                // }
                 
                 await fsPromises.writeFile(
                   `${iexecOut}/computed.json`,
